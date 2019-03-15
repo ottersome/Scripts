@@ -1,0 +1,5 @@
+tempfile="$(mktemp -t tmp.XXXXXX)"
+ranger --cmd="cd $HOME/Wallpapers" --choosefile="$tempfile" 
+dir="$(cat $tempfile)"
+wal -o /home/ottersome/scripts/basho -i $dir
+rm -f -- "$tempfile"

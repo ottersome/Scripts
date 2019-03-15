@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+defautSinkName=$(pactl info | grep 'Default Sink' | awk '{print $3}');
+#Find default sink index now
+defaultSinkIndex=$(pactl list short sinks | grep $defautSinkName | awk '{print $1}');
+
+newSinkIndex=0;
+for sinko in $(pactl list short sinks | awk '{print $1}'); do
+    if [ "$sinko" != "$defaultSinkIndex" ]
+    then
+        newSinkIndex=$sinko;
+        break;
+        fi
+done
+pacmd set-default-sink $newSinkIndex;
+for input in $(pacmd list-sink-inputs | egrep "index" | awk '{print $2}'); do
+    pacmd move-sink-input $input $newSinkIndex
+done
+
