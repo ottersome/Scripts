@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+#File="$(find ./Images -type f \( -iname \*.jpg -o -iname \*.png -o -iname \*.gif -o -iname \*.bmp \) | fzf --print-query)"
+File="$(find ./Images -type f \( -iname \*.jpg -o -iname \*.png -o -iname \*.gif -o -iname \*.bmp \) | rofi -dmenu)"
+#amountLines="$(echo "$File" | wc -l)"
+
+if [ ! -f $File ];
+then
+    deepin-screenshot -ns ./Images/$File &>/dev/null
+    echo "![](./Images/$File.png)";
+else
+    if [ ! -z $File ]
+    then
+    echo "![]($File)";
+else
+    notify-send "Nothing Was Written"
+    fi
+fi
+
