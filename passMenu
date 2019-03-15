@@ -57,18 +57,23 @@ fi
 lpass status
 
 if [ $? -ne 0 ]; then
-    ZENITY_INPUT="$(zenity --entry --text='Please enter your LastPass username:')"
-
-    if [ -z "$ZENITY_INPUT" ]; then
-        exit
-    fi
-
-    lpass login "$ZENITY_INPUT"
-
+    lpass sync
     if [ $? -ne 0 ]; then
-        zenity --error --text="Failed to login to LastPass. Please check your credentials and try again."
+        notify-send -t 5000 -a "Last Pass" "Password" "No action taken"
         exit
     fi
+#    ZENITY_INPUT="$(zenity --entry --text='Please enter your LastPass username:')"
+#
+#    if [ -z "$ZENITY_INPUT" ]; then
+#        exit
+#    fi
+#
+#    lpass login "$ZENITY_INPUT"
+#
+#    if [ $? -ne 0 ]; then
+#        zenity --error --text="Failed to login to LastPass. Please check your credentials and try again."
+#        exit
+#    fi
 fi
 
 ROFI_SELECTION="$(lpass ls --format '•%an' | grep '•' | tr '•' '\n' | sed '/^$/d' | ${MENU_CMD} ${MENU_ARGS[@]})"
@@ -80,9 +85,19 @@ fi
 lpass show -c --password "${ROFI_SELECTION}"
 
 if [ $? -ne 0 ]; then
-    zenity --error --text="Login successful but unable to retrieve password for ${ROFI_SELECTION}\n\nTry running this script in a terminal emulator to see error output from lpass."
+        notify-send -t 5000 -a "Last Pass" "Password" "Sync Succesful but no password copied to clipboard"
 else
     if [ $# -lt 1 ]; then
-        zenity --info --text="Password for ${ROFI_SELECTION} saved to the X clipboard."
+        notify-send -t 5000 -a "Last Pass" "Password" "Password copied to clipboard."
     fi
     fi
+#=======
+##!/bin/bash
+#
+#
+#selection=`echo -e $(lpass ls | awk -F '[/[]' '{print $(NF-1)"\\\n"}') | rofi -dmenu -i`
+#
+#if [ "$selection" != "" ]; then
+#    lpass show -c --password $selection &
+#fi
+#>>>>>>> b655bbd7a7e336ac15a1be25c86388cf2c41c8a2
