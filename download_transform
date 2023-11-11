@@ -1,0 +1,41 @@
+#!/bin/bash
+set -e
+#
+sanitize_filename() {
+    echo "$1" | sed -e 's/[^A-Za-z0-9._-]/_/g' -e 's/^-*//' -e 's/__*/_/g'
+}
+
+
+# The idea behid this script is to have a way to take whatever
+# paper name is on my clipboard and change it to a format that 
+clipboard_content=$(xclip -o -selection clipboard)
+
+# Get files in ~Downloads to list selection
+selection=$(ls -t ~/Downloads | rofi -dmenu -i -p "Select file")
+selection=$(readlink -e "${HOME}/Downloads/${selection}")
+
+# if selection not empty
+if [ -z $selection ]; then
+    exit 1
+fi
+
+# Use tree to get clean line-by-line input for rofi of resursive listing of a specific directory
+destination=$(tree -dlfitn ~/Onedrive/ResearchPapers/ | rofi -dmenu -i -p "Select destination")
+
+# get filename only and remove everything after the first "-"
+author_name=$(tree -fitn ~/Onedrive/ResearchPapers | sed -E 's/.*\///g ; s/(\w+)-.*/\1/g' | rofi -dmenu -i -p "Author Name")
+
+if [ -z $author_name ]; then
+  exit 1
+fi
+# remove from filename_only string any trialing path forward slashrol_Polices
+file_name=$(rofi -dmenu -p "Paper name")
+
+#grab file_name and turn it into a legal filename for most filesystems
+file_name=$(sanitize_filename $(echo "$file_name" | sed -E 's/[^a-zA-Z0-9._-]/_/g'))
+
+# Concatenate author to sanitize_filename 
+final_dest="${destination}/${author_name}-${file_name}.pdf"
+
+# save it in destination + file_name
+mv "${selection}" "${final_dest}"
